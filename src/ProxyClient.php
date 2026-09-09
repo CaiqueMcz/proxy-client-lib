@@ -28,10 +28,10 @@ class ProxyClient
     }
 
     /**
-     * @param string            $method
-     * @param string            $url
-     * @param array             $params
-     * @param string|int|null   $xHash
+     * @param string $method
+     * @param string $url
+     * @param array $params
+     * @param string|int|null $xHash
      *
      * @throws GuzzleException
      */
@@ -45,17 +45,22 @@ class ProxyClient
         if ($xHash !== null) {
             $headers['x-hash'] = $xHash;
         }
-
-        return $this->client->request(strtoupper($method), $url, [
+        $method = strtoupper($method);
+        if ($method === 'GET') {
+            $dataKey = "query";
+        } else {
+            $dataKey = "json";
+        }
+        return $this->client->request($method, $url, [
             'headers' => $headers,
-            'json' => $params,
+            $dataKey => $params,
         ]);
     }
 
     /**
-     * @param string          $method
-     * @param string          $url
-     * @param array           $params
+     * @param string $method
+     * @param string $url
+     * @param array $params
      * @param string|int|null $xHash
      *
      * @throws GuzzleException
@@ -70,8 +75,8 @@ class ProxyClient
     }
 
     /**
-     * @param string          $url
-     * @param array           $params
+     * @param string $url
+     * @param array $params
      * @param string|int|null $xHash
      *
      * @throws GuzzleException
@@ -82,8 +87,8 @@ class ProxyClient
     }
 
     /**
-     * @param string      $fileName
-     * @param string      $content
+     * @param string $fileName
+     * @param string $content
      * @param string|null $urlToCheck
      *
      * @throws GuzzleException
@@ -111,6 +116,19 @@ class ProxyClient
 
             return $response->getStatusCode() === 200;
         } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    public function checkSsl(string $url): ResponseInterface
+    {
+        try {
+            return $this->sendRequest('get', $this->baseUrl . '/v1/ssl/check', [
+                'url' => $url,
+            ]);
+
+        } catch (\Throwable $e) {
+
             return false;
         }
     }
