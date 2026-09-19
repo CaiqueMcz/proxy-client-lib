@@ -35,7 +35,7 @@ class ProxyClient
      *
      * @throws GuzzleException
      */
-    private function sendRequest($method, $url, array $params, $xHash = null): ResponseInterface
+    public function sendRequest($method, $url, array $params, $xHash = null): ResponseInterface
     {
         $headers = [
             'Content-Type' => 'application/json',
