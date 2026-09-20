@@ -16,7 +16,6 @@ class ProxyClient
 
     /** @var Client */
     private $client;
-    private static $instance;
 
     public function __construct(string $baseUrl, string $apiKey, array $options = [])
     {
@@ -66,7 +65,7 @@ class ProxyClient
      *
      * @throws GuzzleException
      */
-    private function sendRequestRelay(string $method, string $url, array $params, $xHash = null): ResponseInterface
+    public function sendRequestRelay(string $method, string $url, array $params, $xHash = null): ResponseInterface
     {
         return $this->sendRequest($method, $this->baseUrl . '/v1/request-relay', [
             'url' => $url,

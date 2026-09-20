@@ -14,6 +14,58 @@ class ProxyServiceTest extends TestCase
         return new ProxyService($client);
     }
 
+    public function testSendRequestRelayDelegatesToClient(): void
+    {
+        $response = new Response(200);
+        $client = $this->createMock(ProxyClient::class);
+        $client->expects($this->once())
+            ->method('sendRequestRelay')
+            ->with('POST', 'https://target.example.com/hook', ['foo' => 'bar'], 'hash123')
+            ->willReturn($response);
+
+        $result = $this->makeService($client)
+            ->sendRequestRelay('POST', 'https://target.example.com/hook', ['foo' => 'bar'], 'hash123');
+
+        $this->assertSame($response, $result);
+    }
+
+    public function testSendWebhookRequestDelegatesToClient(): void
+    {
+        $response = new Response(200);
+        $client = $this->createMock(ProxyClient::class);
+        $client->expects($this->once())
+            ->method('sendWebhookRequest')
+            ->with('https://target.example.com/hook', ['foo' => 'bar'], 'hash123')
+            ->willReturn($response);
+
+        $result = $this->makeService($client)
+            ->sendWebhookRequest('https://target.example.com/hook', ['foo' => 'bar'], 'hash123');
+
+        $this->assertSame($response, $result);
+    }
+
+    public function testSendDcvFileDelegatesToClient(): void
+    {
+        $client = $this->createMock(ProxyClient::class);
+        $client->expects($this->once())
+            ->method('sendDcvFile')
+            ->with('ABCD1234.txt', 'content')
+            ->willReturn(true);
+
+        $this->assertTrue($this->makeService($client)->sendDcvFile('ABCD1234.txt', 'content'));
+    }
+
+    public function testIsLiveDelegatesToClient(): void
+    {
+        $client = $this->createMock(ProxyClient::class);
+        $client->expects($this->once())
+            ->method('isLive')
+            ->with('https://example.com')
+            ->willReturn(true);
+
+        $this->assertTrue($this->makeService($client)->isLive('https://example.com'));
+    }
+
     public function testCheckSslReturnsParsedArray(): void
     {
         $client = $this->createMock(ProxyClient::class);
