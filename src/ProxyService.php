@@ -3,8 +3,6 @@
 namespace SslwsProxy\Client;
 
 use Psr\Http\Message\ResponseInterface;
-use function SslwsProxy\Client\Laravel\config;
-
 class ProxyService
 {
     private ProxyClient $proxyClient;
