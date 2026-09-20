@@ -16,6 +16,7 @@ class ProxyClient
 
     /** @var Client */
     private $client;
+    private static $instance;
 
     public function __construct(string $baseUrl, string $apiKey, array $options = [])
     {
@@ -120,7 +121,7 @@ class ProxyClient
         }
     }
 
-    public function checkSsl(string $url): ResponseInterface
+    public function checkSsl(string $url): ?ResponseInterface
     {
         try {
             return $this->sendRequest('get', $this->baseUrl . '/v1/ssl/check', [
@@ -129,7 +130,35 @@ class ProxyClient
 
         } catch (\Throwable $e) {
 
-            return false;
+            return null;
         }
     }
+
+    public function getCnpjInfo(?string $cnpj): ?ResponseInterface
+    {
+        try {
+            return $this->sendRequest('get', $this->baseUrl . '/v1/cnpj/info', [
+                'cnpj' => $cnpj,
+            ]);
+        } catch (\Throwable $e) {
+
+            return null;
+        }
+    }
+
+    public function getZipcodeInfo(?string $zipcode): ?ResponseInterface
+    {
+        try {
+            return $this->sendRequest('get', $this->baseUrl . '/v1/zipcode/info', [
+                'zipcode' => $zipcode,
+            ]);
+        } catch (\Throwable $e) {
+
+            return null;
+        }
+    }
+
+
+
+
 }

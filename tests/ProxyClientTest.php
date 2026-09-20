@@ -140,4 +140,92 @@ class ProxyClientTest extends TestCase
 
         $this->assertFalse($client->isLive('https://example.com/error'));
     }
+
+    public function testCheckSsl(): void
+    {
+        $container = [];
+        $client = $this->makeClient([new Response(200)], self::BASE_URL, $container);
+
+        $response = $client->checkSsl('https://example.com');
+
+        $this->assertNotNull($response);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertCount(1, $container);
+
+        $request = $container[0]['request'];
+        $this->assertSame('GET', $request->getMethod());
+        $this->assertSame('/v1/ssl/check', $request->getUri()->getPath());
+        $this->assertSame(self::API_KEY, $request->getHeaderLine('x-api-key'));
+
+        $query = [];
+        parse_str($request->getUri()->getQuery(), $query);
+        $this->assertSame('https://example.com', $query['url']);
+    }
+
+    public function testCheckSslReturnsNullOnException(): void
+    {
+        $client = $this->makeClient([
+            new RequestException('Connection error', new Request('GET', 'https://example.com/error')),
+        ]);
+
+        $this->assertNull($client->checkSsl('https://example.com'));
+    }
+
+    public function testGetCnpjInfo(): void
+    {
+        $container = [];
+        $client = $this->makeClient([new Response(200)], self::BASE_URL, $container);
+
+        $response = $client->getCnpjInfo('12345678000199');
+
+        $this->assertNotNull($response);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertCount(1, $container);
+
+        $request = $container[0]['request'];
+        $this->assertSame('GET', $request->getMethod());
+        $this->assertSame('/v1/cnpj/info', $request->getUri()->getPath());
+
+        $query = [];
+        parse_str($request->getUri()->getQuery(), $query);
+        $this->assertSame('12345678000199', $query['cnpj']);
+    }
+
+    public function testGetCnpjInfoReturnsNullOnException(): void
+    {
+        $client = $this->makeClient([
+            new RequestException('Connection error', new Request('GET', 'https://example.com/error')),
+        ]);
+
+        $this->assertNull($client->getCnpjInfo('12345678000199'));
+    }
+
+    public function testGetZipcodeInfo(): void
+    {
+        $container = [];
+        $client = $this->makeClient([new Response(200)], self::BASE_URL, $container);
+
+        $response = $client->getZipcodeInfo('01001000');
+
+        $this->assertNotNull($response);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertCount(1, $container);
+
+        $request = $container[0]['request'];
+        $this->assertSame('GET', $request->getMethod());
+        $this->assertSame('/v1/zipcode/info', $request->getUri()->getPath());
+
+        $query = [];
+        parse_str($request->getUri()->getQuery(), $query);
+        $this->assertSame('01001000', $query['zipcode']);
+    }
+
+    public function testGetZipcodeInfoReturnsNullOnException(): void
+    {
+        $client = $this->makeClient([
+            new RequestException('Connection error', new Request('GET', 'https://example.com/error')),
+        ]);
+
+        $this->assertNull($client->getZipcodeInfo('01001000'));
+    }
 }
